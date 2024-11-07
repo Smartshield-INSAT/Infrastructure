@@ -12,6 +12,7 @@ from io import BytesIO
 import httpx
 import os
 import asyncio
+from feature_processing import process_file
 
 # Configuration
 RABBITMQ_URL = "amqp://guest:guest@localhost:5672"  # Default port for RabbitMQ is 5672
@@ -30,10 +31,10 @@ async def process_message(data):
     """Processes a single message by sending a file to the API."""
     with open("data.pcap", "ab") as dt:
         dt.write(data)
-
+    process_file("10_samples.parquet")
     with open("10_samples.parquet", "rb") as file:
         parquet_buffer = BytesIO(file.read())
-
+    
     async with httpx.AsyncClient() as client:
         files = {'file': ("10_samples.parquet", parquet_buffer, "application/octet-stream")}
         response = await client.post(API_NB15, files=files)
@@ -51,7 +52,7 @@ async def consume_messages():
 
     # Declare the queue (ensure it exists)
     channel.queue_declare(queue=QUEUE_NAME, durable=True)
-
+    
     # Consume messages from the queue
     async def callback(ch, method, properties, body):
         data = body
