@@ -12,9 +12,9 @@ def features(df):
         df["Network Usage"] = np.log1p(df["sbytes"] + df["dbytes"])
         return df.head()
 def process_file(filename):
-        df=pd.read_parquet(filename)
+        df=pd.read_csv(filename)
         print(features(df))
         with open(filename, "wb") as f:
-                df.to_parquet(f)
+                df.to_csv(path_or_buf=f)
 if __name__ == "__main__":
-        process_file("10_samples.parquet")
+        process_file("10_samples.csv")
